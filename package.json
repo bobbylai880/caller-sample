@@ -1,0 +1,16 @@
+{
+  "name": "caller-sample",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @caller/backend",
+    "lint": "npm run lint --workspace @caller/backend",
+    "typecheck": "npm run typecheck --workspace @caller/backend",
+    "test": "npm run test --workspace @caller/backend",
+    "build": "npm run build --workspace @caller/backend",
+    "generate": "npm run generate --workspace @caller/backend"
+  }
+}
