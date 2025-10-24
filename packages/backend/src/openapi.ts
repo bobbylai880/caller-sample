@@ -1,4 +1,5 @@
 import { OpenAPIRegistry, OpenApiGeneratorV3 } from '@asteasolutions/zod-to-openapi';
+
 import { env } from './env.js';
 import { healthRegistry } from './schemas/health.js';
 import { voiceRegistry } from './schemas/voice.js';
@@ -10,9 +11,12 @@ rootRegistry.registerComponent('securitySchemes', 'BearerAuth', {
   scheme: 'bearer'
 });
 
-const registries = [rootRegistry, healthRegistry, voiceRegistry];
+const registries: OpenAPIRegistry[] = [rootRegistry, healthRegistry, voiceRegistry];
 
-export const generator = new OpenApiGeneratorV3(registries);
+type GeneratorInput = ConstructorParameters<typeof OpenApiGeneratorV3>[0];
+const registryDefinitions = registries.flatMap((registry) => registry.definitions);
+
+export const generator = new OpenApiGeneratorV3(registryDefinitions as unknown as GeneratorInput);
 
 export const openApiDocument = generator.generateDocument({
   openapi: '3.1.0',

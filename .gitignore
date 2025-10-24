@@ -4,6 +4,8 @@ yarn.lock
 package-lock.json
 .env
 .env.*
+!.env.example
+!packages/backend/.env.example
 .DS_Store
 packages/backend/dist
 packages/backend/src/generated/*.json

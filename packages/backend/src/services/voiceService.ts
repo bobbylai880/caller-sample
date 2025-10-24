@@ -1,4 +1,6 @@
 import { Queue } from 'bullmq';
+
+import { env } from '../env.js';
 import { connection } from '../lib/bullmq.js';
 
 export type OutboundCallJob = {
@@ -11,12 +13,27 @@ export type OutboundCallJob = {
   };
 };
 
-export const voiceQueue = new Queue<OutboundCallJob>('voice:outbound', {
-  connection,
-  defaultJobOptions: {
-    removeOnFail: true
-  }
+type VoiceQueue = Pick<Queue<OutboundCallJob>, 'add' | 'getJob'>;
+type VoiceQueueAddReturn = Awaited<ReturnType<Queue<OutboundCallJob>['add']>>;
+
+const createStubVoiceQueue = (): VoiceQueue => ({
+  add: async () => ({ id: `stub-${Date.now()}` }) as unknown as VoiceQueueAddReturn,
+  getJob: async () => undefined
 });
+
+const shouldSkipQueues =
+  process.env.SKIP_BULLMQ === '1' ||
+  process.env.VITEST_WORKER_ID !== undefined ||
+  env.NODE_ENV === 'test';
+
+export const voiceQueue: VoiceQueue = shouldSkipQueues
+  ? createStubVoiceQueue()
+  : new Queue<OutboundCallJob>('voice:outbound', {
+      connection,
+      defaultJobOptions: {
+        removeOnFail: true
+      }
+    });
 
 // TODO: implement worker(s) that consume jobs from the queue, call Twilio Programmable Voice,
 // establish media streams, and pipe audio into the chosen transcription provider.
