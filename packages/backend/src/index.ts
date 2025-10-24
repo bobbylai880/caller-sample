@@ -1,6 +1,8 @@
 import { createServer } from 'http';
-import { env } from './env.js';
+
 import { createApp } from './app.js';
+import { env } from './env.js';
+import './workers/outboundDialer.js';
 
 const app = createApp();
 

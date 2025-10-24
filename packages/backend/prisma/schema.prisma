@@ -7,15 +7,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model CallSession {
-  id            String   @id @default(cuid())
-  callSid       String   @unique
-  to            String
-  status        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  transcription Json?
-  metadata      Json?
+enum TaskStatus {
+  PENDING
+  RUNNING
+  MATCHED
+  COMPLETED
+  STOPPED
+  FAILED
 }
 
-// TODO: model real-time media stream events, transcripts, and audit logs.
+enum CallAttemptStatus {
+  PENDING
+  DIALING
+  RINGING
+  ANSWERED
+  MATCHED
+  NO_ANSWER
+  BUSY
+  FAILED
+  CANCELED
+  COMPLETED
+}
+
+model RuleSet {
+  id          String   @id
+  name        String
+  description String?
+  config      Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tasks       Task[]
+}
+
+model Task {
+  id                   String          @id @default(cuid())
+  numbers              String[]
+  userPhone            String
+  ruleSetId            String
+  status               TaskStatus      @default(PENDING)
+  perNumberMaxAttempts Int             @default(3)
+  globalMaxAttempts    Int?
+  timeWindowStart      DateTime?
+  timeWindowEnd        DateTime?
+  backoffPolicy        Json?
+  metadata             Json?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  completedAt          DateTime?
+  lastAttemptedAt      DateTime?
+  ruleSet              RuleSet         @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
+  attempts             CallAttempt[]
+}
+
+model CallAttempt {
+  id             String            @id @default(cuid())
+  taskId         String
+  number         String
+  attemptNumber  Int
+  status         CallAttemptStatus @default(PENDING)
+  callSid        String?           @unique
+  reason         String?
+  sipCode        Int?
+  matched        Boolean           @default(false)
+  matchMetadata  Json?
+  jobId          String?
+  scheduledFor   DateTime?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  nextRetryAt    DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  task           Task              @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}

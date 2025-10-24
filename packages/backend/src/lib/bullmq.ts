@@ -1,5 +1,7 @@
-import type { RedisOptions } from 'ioredis';
 import { URL } from 'url';
+
+import type { RedisOptions } from 'ioredis';
+
 import { env } from '../env.js';
 
 const redisUrl = new URL(env.REDIS_URL);

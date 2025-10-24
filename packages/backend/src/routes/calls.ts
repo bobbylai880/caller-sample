@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { Router } from 'express';
+
 import { outboundCallRequestSchema } from '../schemas/voice.js';
 import { voiceQueue } from '../services/voiceService.js';
 

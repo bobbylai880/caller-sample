@@ -4,6 +4,10 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
-    setupFiles: ['src/test/setup.ts']
+    setupFiles: ['src/test/setup.ts'],
+    env: {
+      NODE_ENV: 'test',
+      SKIP_BULLMQ: '1'
+    }
   }
 });
